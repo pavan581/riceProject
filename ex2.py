@@ -22,7 +22,7 @@ def show_images(images):
 img_path = "images/example_02.jpg"
 
 # Read image and preprocess
-image = cv2.imread('25.jpeg')
+image = cv2.imread('12.jpg')
 cv2.imshow('image', image)
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
