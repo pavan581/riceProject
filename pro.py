@@ -4,9 +4,9 @@ from imutils import contours
 import numpy as np
 import imutils
 import cv2
-
 import math
 
+#Varaibles to store data
 height=list()
 width=list()
 Area=list()
@@ -19,6 +19,7 @@ def show_images(images):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
+#Function to resize viewing window
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
     (h, w) = image.shape[:2]
@@ -35,16 +36,16 @@ def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     return cv2.resize(image, dim, interpolation=inter)
 
 
-img_path = "images/example_02.jpg"
+#img_path = "images/example_02.jpg"
 
 # Read image and preprocess
-image = cv2.imread('jaya rice 3.jpg')
-#cv2.imshow('image', image)
+image = cv2.imread('jaya1.jpg')
+cv2.imshow('input image', ResizeWithAspectRatio(image, width=550))
 
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-blur = cv2.GaussianBlur(gray, (9, 9), 0)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)    #Convert to Gray Scale
+blur = cv2.GaussianBlur(gray, (9, 9), 0)          #Gaussian Blur filter
 
-edged = cv2.Canny(blur, 50, 100)
+edged = cv2.Canny(blur, 50, 100)                  #Canny Edge algorithm
 edged = cv2.dilate(edged, None, iterations=1)
 edged = cv2.erode(edged, None, iterations=1)
 
@@ -61,12 +62,10 @@ cnts = imutils.grab_contours(cnts)
 cnts = [x for x in cnts if cv2.contourArea(x) > 100]
 
 #cv2.drawContours(image, cnts, -1, (0,255,0), 3)
-
 #show_images([image, edged])
-print(len(cnts))
+#print(len(cnts))
 
 # Reference object dimensions
-# Here for reference I have used a 2cm x 2cm square
 ref_object = cnts[0]
 box = cv2.minAreaRect(ref_object)
 box = cv2.boxPoints(box)
@@ -74,7 +73,7 @@ box = np.array(box, dtype="int")
 box = perspective.order_points(box)
 (tl, tr, br, bl) = box
 dist_in_pixel = euclidean(tl, tr)
-dist_in_cm = 0.77
+dist_in_cm = 0.87
 pixel_per_cm = dist_in_pixel/dist_in_cm
 
 # Draw remaining contours
@@ -99,25 +98,20 @@ for cnt in cnts:
 	cv2.putText(image, "{:.1f}cm".format(wid), (int(mid_pt_horizontal[0] - 15), int(mid_pt_horizontal[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 	cv2.putText(image, "{:.1f}cm".format(ht), (int(mid_pt_verticle[0] + 10), int(mid_pt_verticle[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
-#cv2.imshow('image',image)
 cv2.imshow('image', ResizeWithAspectRatio(image, width=550))
-ar=[width[i]/height[i] for i in range(len(height))]#aspect ratio
-area2=[width[i]*height[i] for i in range(len(height))]#calculated area
+
+#Calculating other parameters
+#Aspect Ratio
+ar=[width[i]/height[i] for i in range(len(height))]
+#Roughness
 roughness=[(Perimeter[i]*Perimeter[i])/(4*3.14*Area[i]) for i in range(len(Perimeter))]
+#Metric
 metric=[1/roughness[i] for i in range(len(roughness))]
-solidity = [Area[i]/area2[i] for i in range(len(Area))]
-#eccentricity=[math.sqrt(1-((height[i]*height[i])/(width[i]*width[i]))) for i in range(len(height))]
-#print("Height: ",height)
-#print("Width: ",width)
-#print("Aspect Ratio: ", ar)
-#print("Area: ",Area)
-#print("Area2: ",area2)
-#print("Perimeter: ",Perimeter)
-#print("Roughness: ",roughness)
-#print("Metric: ",metric)
-#print("Solidity: ", solidity)
-#print("Eccentricity: ", eccentricity)
-#print(len(height)==len(width)==len(ar)==len(Area))
-print("")
+#Area of enclosing rectangle
+a_en_rec=[width[i]*height[i] for i in range(len(height))]
+#Solidity
+solidity = [Area[i]/a_en_rec[i] for i in range(len(Area))]
+
+print("Grain : Height : Width : Aspect Ratio : Area : Roughness : Metric : Solidity")
 for i in range(len(height)):
-        print("grain[{}]:{}:{}:{}:{}".format(height[i],width[i],ar[i],Area[i]))
+        print("grain[{}]:{}:{}:{}:{}:{}:{}:{}".format(i+1, height[i], width[i], ar[i], Area[i], roughness[i], metric[i], solidity[i]))

@@ -19,29 +19,14 @@ def show_images(images):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
-def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
-    dim = None
-    (h, w) = image.shape[:2]
-
-    if width is None and height is None:
-        return image
-    if width is None:
-        r = height / float(h)
-        dim = (int(w * r), height)
-    else:
-        r = width / float(w)
-        dim = (width, int(h * r))
-
-    return cv2.resize(image, dim, interpolation=inter)
-
-
 img_path = "images/example_02.jpg"
 
 # Read image and preprocess
-image = cv2.imread('jaya rice 3.jpg')
+image = cv2.imread('jaya.jpg')
 #cv2.imshow('image', image)
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#cv2.imshow('bw', gray)
 blur = cv2.GaussianBlur(gray, (9, 9), 0)
 
 edged = cv2.Canny(blur, 50, 100)
@@ -63,7 +48,7 @@ cnts = [x for x in cnts if cv2.contourArea(x) > 100]
 #cv2.drawContours(image, cnts, -1, (0,255,0), 3)
 
 #show_images([image, edged])
-print(len(cnts))
+#print(len(cnts))
 
 # Reference object dimensions
 # Here for reference I have used a 2cm x 2cm square
@@ -91,7 +76,6 @@ for cnt in cnts:
 	ht = euclidean(tr, br)/pixel_per_cm
 	perimeter=cv2.arcLength(cnt,True)/pixel_per_cm
 	area=cv2.contourArea(cnt)/(pixel_per_cm*pixel_per_cm)
-	
 	height.append(ht)
 	width.append(wid)
 	Area.append(area)
@@ -99,25 +83,20 @@ for cnt in cnts:
 	cv2.putText(image, "{:.1f}cm".format(wid), (int(mid_pt_horizontal[0] - 15), int(mid_pt_horizontal[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 	cv2.putText(image, "{:.1f}cm".format(ht), (int(mid_pt_verticle[0] + 10), int(mid_pt_verticle[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
-#cv2.imshow('image',image)
-cv2.imshow('image', ResizeWithAspectRatio(image, width=550))
+cv2.imshow('image',image)
 ar=[width[i]/height[i] for i in range(len(height))]#aspect ratio
 area2=[width[i]*height[i] for i in range(len(height))]#calculated area
 roughness=[(Perimeter[i]*Perimeter[i])/(4*3.14*Area[i]) for i in range(len(Perimeter))]
 metric=[1/roughness[i] for i in range(len(roughness))]
 solidity = [Area[i]/area2[i] for i in range(len(Area))]
 #eccentricity=[math.sqrt(1-((height[i]*height[i])/(width[i]*width[i]))) for i in range(len(height))]
-#print("Height: ",height)
-#print("Width: ",width)
-#print("Aspect Ratio: ", ar)
-#print("Area: ",Area)
-#print("Area2: ",area2)
-#print("Perimeter: ",Perimeter)
-#print("Roughness: ",roughness)
-#print("Metric: ",metric)
-#print("Solidity: ", solidity)
+print("Height: ",height)
+print("Width: ",width)
+print("Aspect Ratio: ", ar)
+print("Area: ",Area)
+print("Area2: ",area2)
+print("Perimeter: ",Perimeter)
+print("Roughness: ",roughness)
+print("Metric: ",metric)
+print("Solidity: ", solidity)
 #print("Eccentricity: ", eccentricity)
-#print(len(height)==len(width)==len(ar)==len(Area))
-print("")
-for i in range(len(height)):
-        print("grain[{}]:{}:{}:{}:{}".format(height[i],width[i],ar[i],Area[i]))
